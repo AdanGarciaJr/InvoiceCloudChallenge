@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+    <script src="jquery.js"></script>
+</head>
+<body class="container row min-vh-100">
+    <div class="col d-flex flex-column justify-content-center align-items-center">
+        <div id="header">
+            <h1 class="mx-auto">ASP.NET Core JQuery AJAX</h1>
+            <div class="mt-5">
+            <button id="getCustomers" class="btn btn-dark btn-lg w-75">Get Customers From Server</button>
+            <button id="create" class="btn btn-success btn-lg w-75 mt-4">Create New Customer</button>
+            </div>
+        </div>
+        <div class="table-responsive mt-5">
+            <table id="table" class="table table-bordered coreder-dark">
+                <thead>
+                    <tr>
+                        <th scope="col">Customer ID (PK)</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Address</th>
+                        <th scope="col">City</th>
+                        <th scope="col">State</th>
+                        <th scope="col">Zip</th>               
+                    </tr>
+                </thead>
+                <tbody id="tbody">
+                
+                </tbody>
+            </table>
+        </div>
+        <form id="form" class="mx-auto w-50 px-5 mb-5">
+            <h1 id="form_header" class="mt-5"></h1>
+            <div class="mt-5">
+                <label class="h3 form-label">Name</label>
+                <input id="name" name="name" type="text" class="form-control"/>
+            </div>
+            <div class="mt-4">
+                <label class="h3 form-label">Address</label>
+                <input id="address" name="address" type="text" class="form-control"/>
+            </div>
+            <div class="mt-3">
+                <label class="h3 form-label">City</label>
+                <input id="city" name="city" type="text" class="form-control"/>
+            </div>
+            <div class="mt-2">
+                <label class="h3 form-label">State</label>
+                <input id="state" name="state" type="text" class="form-control"/>
+            </div>
+            <div class="mt-1">
+                <label class="h3 form-label">Zip</label>
+                <input id="zip" name="zip" type="text" class="form-control"/>
+            </div>
+            <button id="submit" class="btn btn-primary btn-lg w-100 mt-5">Submit</button>
+            <button id="cancel" class="btn btn-danger btn-lg w-100 mt-3">Cancel</button>
+        </form>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.min.js" integrity="sha384-7VPbUDkoPSGFnVtYi0QogXtr74QeVeeIs99Qfg5YCF+TidwNdjvaKZX19NZ/e6oz" crossorigin="anonymous"></script>
+    </div>
+</body>
+<script>
+    let customers = null;
+    
+    $("#form").hide();
+
+    //Get customers
+    $("#getCustomers").on("click", function(){
+        
+        let $tbody = $('#tbody');
+
+        if(customers == null){
+            $.ajax({
+            type: 'GET',
+            url: "http://localhost:5022/api/customers/",
+            success: function(custs){
+                customers = custs;
+                $.each(custs, function(i, cust){
+                    
+                    $tbody.append('<tr ><th scope="row">' + cust.id + '</th><td>' + cust.name + '</td><td>' + cust.address + '</td><td>' + cust.city + '</td><td>' + cust.state + '</td><td>' + cust.zip + '</td><td><button class="btn btn-primary btn-lg mx-3 my-3 update" data-key=' + cust.id + '>Update</button><button id="delete" class="btn btn-danger btn-lg mx-3 my-3 customer" data-key=' + cust.id + '>Delete</button></td></tr>');
+                    
+                });
+            }
+        });
+        
+        } 
+    });
+
+    //Create Customer
+    $("#create").on("click", function(){
+        $("#form").trigger('reset')
+        $("#form_header").text("Create Customer")
+        $("#form").show(1000);
+        $("#table").hide(1000);
+        $("#header").hide(1000);
+        
+
+        $("#cancel").on("click", function(e){
+            e.preventDefault();
+            $("#form").hide(1000);
+            $("#table").show(1000);
+            $("#header").show(1000);
+        })
+
+        $("#submit").on("click", function(e){
+            e.preventDefault();
+            let customer = {
+                Name: $("#name").val(),
+                Address: $("#address").val(),
+                City: $("#city").val(),
+                State: $("#state").val(),
+                Zip:  $("#zip").val(),
+            }
+            
+            console.log(customers)
+            $.ajax({
+                headers: { 
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json' 
+                },
+                type: 'POST',
+                url: "http://localhost:5022/api/customers/",
+                data: JSON.stringify(customer),
+                contentType: "charset=utf-8",
+                dataType: 'json',
+                success: function(cust){
+                    console.log(cust)
+                    alert("Successfully Added!");
+                    location.reload(true)
+                }
+            })
+            
+            
+        })
+        
+    })
+
+    //Delete customer
+    $(document).on('click', ".customer", function(){
+        let key = $(this).data('key');
+        if(window.confirm("Are you sure you want to delete this customer?")){
+            //let key = $(this).data('key');
+        $.ajax({
+                type: 'GET',
+                url: "http://localhost:5022/api/customers/deletecustomer?deleteid=" + key,
+                success:function(){
+                    alert("successfully deleted")
+                    location.reload(true)
+                }
+            })
+        }
+    })
+
+    //Update the customer information
+    $(document).on('click', ".update", function(){
+        $("#form_header").text("Edit Customer")
+
+
+
+        $("#form").show(1000);
+        $("#table").hide(1000);
+        $("#header").hide(1000);
+        $("#form_header").text = "Edit Customer"
+        let key = $(this).data('key');
+        
+        let numKey = 0;
+        $.each(customers, function(index, cust){
+            if(key == cust.id){
+                numKey = index;
+            }
+            console.log(cust.id)
+            index++;
+        })
+        $("#submit").on('click', function(e){
+            e.preventDefault();
+            console.log(numKey)
+            let customer = {
+                Id: customers[numKey].id,
+                Name: $("#name").val(),
+                Address: $("#address").val(),
+                City: $("#city").val(),
+                State: $("#state").val(),
+                Zip:  $("#zip").val(),
+            }
+
+        console.log(key)
+        $.ajax({
+            headers: { 
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json' 
+                },
+                type: 'PUT',
+                url: "http://localhost:5022/api/customers/customer",
+                data: JSON.stringify(customer),
+                contentType: "charset=utf-8",
+                dataType: 'json',
+                success:function(){
+                    alert("successfully edited")
+                    location.reload(true)
+                }  
+            })
+        })
+        
+    })
+
+   
+</script>
+</html>
+
