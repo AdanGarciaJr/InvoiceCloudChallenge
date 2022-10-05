@@ -4,6 +4,10 @@
 
 ### I used bootstrap for the UI.
 
+* All the react contents are in reactclient folder
+* Jquery contents are in Jquery folder
+* C# contents are in Task1 folder, but the sln file is in main folder.
+
 ## Instructions
 ## Back-end
 ### Task 1 folder is C# stuff
