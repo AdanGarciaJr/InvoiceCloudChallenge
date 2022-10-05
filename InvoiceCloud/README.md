@@ -13,11 +13,11 @@
 * Run the solution.
 
 ## Front End REACT
-* Open react soltion.
+* Open react solution.
 * run the solution using npm start
 
 ## Front End JQuery AJAX
-* Open home.html document in JQUery folder
+* Open home.html document in JQuery folder
 
 
 ## Issues
